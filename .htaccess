@@ -1,0 +1,43 @@
+RewriteEngine On
+
+# Redirect to HTTPS (uncomment if using SSL)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Remove trailing slash
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+# Frontend routes
+RewriteRule ^produk/([0-9]+)/?$ produk_detail.php?id=$1 [L,QSA]
+RewriteRule ^kategori/([a-zA-Z0-9-]+)/?$ produk.php?kategori=$1 [L,QSA]
+RewriteRule ^cari/?$ produk.php [L,QSA]
+
+# Admin routes
+RewriteRule ^admin/obat/tambah/?$ admin/obat_form.php?action=tambah [L,QSA]
+RewriteRule ^admin/obat/edit/([0-9]+)/?$ admin/obat_form.php?action=edit&id=$1 [L,QSA]
+RewriteRule ^admin/transaksi/([0-9]+)/?$ admin/transaksi_detail.php?id=$1 [L,QSA]
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Cache static files
+<IfModule mod_expires.c>
+    ExpiresActive On
+    <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico)$">
+        ExpiresDefault "access plus 1 month"
+    </FilesMatch>
+</IfModule>
+
+# Prevent access to sensitive files
+<FilesMatch "\.(env|log|sql)$">
+    Require all denied
+</FilesMatch>
+
+<Files "config/database.php">
+    Require all denied
+</Files>
